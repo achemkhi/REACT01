@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>QCM</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<!-- compilation JSX => JS -->
+<script type="text/babel">
+
+    const container = document.getElementById('root')
+
+    const questions = {
+        'symfony' : {
+            title : "Symfony design pattern",
+            choices : ['MMV', 'MVC', 'MMVV'],
+            response : 1,
+            type : "select",
+            name : "symfony",
+            feedback : 'Symfony est basé sur le pattern MVC'
+        },
+        'react' : {
+            title : "React est-il un framework ?",
+            choices : ['yes', 'no'],
+            response : 1,
+            type : "radio",
+            name : "react",
+            feedback : "React est une librairie"
+        },
+        'jsx' : {
+            title : "JSX c'est quoi ?",
+            choices : ['JSX est un langage compilé', 'JSX est un sur-ensemble développé par Facebook'],
+            response : 1,
+            type: "radio" ,
+            name : "jsx",
+            feedback : 'JSX est un sur ensemble à JS'
+        }
+    }
+
+    class Input extends React.Component {
+        constructor(props) {
+            super(props)
+        }
+
+        render() {
+            return(<ul>
+                Input : {this.props.question.type}
+                {this.props.question.choices.map((c,i)=> {
+                    return(<li key={i}>{c}</li>)
+                })}
+            </ul>)
+        }
+    }
+
+    class Wrapper extends React.Component {
+        constructor(props) {
+            super(props)
+        }
+
+        render(){
+            return(<div>{this.props.children}</div>)
+        }
+    }
+
+    class App extends React.Component {
+        constructor(props){
+            super(props)
+            this.state = {
+                questions : Object.entries(questions)
+            }
+        }
+
+        render() {
+            return(
+
+                <div className="container">
+                    <div>
+                        <p>Voici un QCM sur React répondez aux questions ci-dessous, pensez à laisser votre email, champ obligatoire (*) :</p>
+                    </div>
+                    <form>
+                        <Wrapper>
+                            <h1>QCM React</h1>
+                            <p>votre email (*) : EMAIL</p>
+                        </Wrapper>
+                        <ol>
+                        {
+                            this.state.questions.map((q,i)=> {
+                                let question = q[1];
+                                return(<Wrapper key={i}>
+                                    <li>
+                                        <h2>{question.title}</h2>
+                                        <p>Répondez en choisissant une seule et bonne réponse ci-dessous :</p>
+                                        <Input question={question} />
+                                        <br />
+                                        <p className="feedback">{question.feedback}</p>
+                                    </li>
+                                </Wrapper>)
+                            })
+                        }
+                        </ol>
+                    </form>
+                </div> )
+        }
+    }
+
+
+    ReactDOM.render(
+        <App />,
+        container
+    );
+</script>
+</body>
+</html>
