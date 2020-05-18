@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Hello React</title>
+    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<!-- compilation JSX => JS -->
+<script type="text/babel">
+    const container = document.getElementById('root');
+    const users = [
+        { id : 1, name : "Alice" },
+        { id : 2, name : "Alan" },
+        { id : 3, name : "Phil" },
+        { id : 4, name : "Naoudi" },
+        { id : 5, name : "Fenley" },
+    ];
+
+    class UserList extends React.Component {
+        constructor(props) {
+            super(props);
+            this.state = {
+                users: users,
+                name: ''
+            }
+        }
+
+        handleChange = (event) => {
+            const { value } = event.target;
+            this.setState({ name: value });
+        }
+
+        handleSubmit = (event) => {
+            event.preventDefault()
+            let maxid = 0;
+            this.state.users.map(function(obj){
+                if (obj.id > maxid) maxid = obj.id;
+            });
+
+            if (!this.state.users.filter(element => element.name === this.state.name).length > 0 && this.state.name!=="") {
+
+                this.state.users.push({id : (maxid + 1), name: this.state.name})
+
+                this.setState({
+                    users: this.state.users
+                })
+            }
+            else {
+                this.setState({
+                    error: `L'utilisateur "${this.state.name}" existe deja`
+                })
+            }
+        }
+
+        render() {
+            return (
+                <div>
+                    <input type="text" name="user" value={this.state.name} onChange={this.handleChange} />
+                    <button className="btn" onClick={this.handleSubmit}>Add user</button>
+                    <hr />
+                    <p>{this.state.error}</p>
+                    <ul>
+                        {
+                            this.state.users.map(function(user,i){
+                                return (<li key={i}>{user.id}: {user.name}</li>)
+                            })
+                        }
+                    </ul>
+                </div>
+            )
+        }
+    }
+
+    class Dashboard extends React.Component {
+        constructor(props) {
+            super(props)
+        }
+
+        handleClick = (event) => {
+            console.log(event)
+        }
+
+        render() {
+            return (<div>
+                <h2>{this.props.title}</h2>
+                <hr />
+                {this.props.children}
+            </div>)
+        }
+    }
+
+    class App extends React.Component {
+
+        constructor(props) {
+            super(props)
+        }
+
+        render(){
+            return (
+                <div>
+                    <Dashboard title="Dashboard user">
+                        <UserList users={users} />
+                    </Dashboard>
+                </div>
+            )
+        }
+    }
+
+    ReactDOM.render(
+        <App />,
+        container
+    );
+</script>
+</body>
+</html>
