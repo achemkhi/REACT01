@@ -45,19 +45,31 @@
     class Select extends React.Component{
         constructor(props) {
             super(props);
+            this.state = {
+                score: 0,
+                value: ''
+            }
         }
 
-        handleChange=(event)=>{
-            if(event.target.value === this.props.question.response){
-                this.state.score = this.state.score + 1
+        handleChange = (event) => {
+
+            this.setState({
+                value: event.target.value,
+                score: 0
+            });
+
+            if(event.target.value == this.props.question.response){
+                this.setState({score : 1})
             }
+
+            this.props.setScore(this.state.score);
         }
 
         render() {
             let content = <div>
                             <h2>{this.props.question.title}</h2>
 
-                            <select className="form-control" name={this.props.question.name} onChange={this.handleChange}>
+                            <select className="form-control" name={this.props.question.name} value={this.state.value} onChange={this.handleChange}>
                                 {
                                     this.props.question.choices.map((choice,index)=>{
                                             return (<option key={index} value={index}>{choice}</option>)
@@ -73,13 +85,24 @@
 
     class Radio extends React.Component {
         constructor(props) {
-            super(props)
+            super(props);
+            this.state = {
+                score: 0,
+                value: ''
+            }
         }
 
-        handleChange=(event)=>{
-            if(event.target.value === this.props.question.response){
-                this.state.score = this.state.score + 1
+        handleChange = (event) => {
+            this.setState({
+                value: event.target.value,
+                score: 0
+            });
+
+            if(event.target.value == this.props.question.response){
+                this.setState({score : 1})
             }
+
+            this.props.setScore(this.state.score);
         }
 
         render(){
@@ -106,7 +129,7 @@
             super(props)
             this.state = {
                 value: ''
-            };
+            }
         }
 
         handleChange = (event) => {
@@ -122,6 +145,18 @@
         constructor(props) {
             super(props)
             this.question = this.props.question
+            this.state = {
+                score: 0
+            }
+        }
+
+        handleScore = (score) => {
+            this.setState({
+                score: score
+            })
+
+            this.props.setScore(score)
+
         }
 
         render() {
@@ -132,20 +167,14 @@
                 case 'radio':
                     return (
                         <div>
-                            <Radio question={this.question} done={this.props.done} />
+                            <Radio question={this.question} setScore={this.handleScore} done={this.props.done} />
                         </div>
                         )
                     break;
                 case 'select':
                     return (
                         <div>
-                            <Select question={this.question} done={this.props.done} />
-                        </div>)
-                    break;
-                case 'input':
-                    return (
-                        <div>
-                            <Input question={this.question} done={this.props.done} />
+                            <Select question={this.question} setScore={this.handleScore} done={this.props.done} />
                         </div>)
                     break;
                 default:
@@ -176,11 +205,17 @@
             this.questions = Object.entries(questions)
         }
 
-
         handleSubmit = (event) => {
             event.preventDefault();
+
             this.setState({
                 done: true
+            })
+        }
+
+        handleScore = (score) => {
+            this.setState({
+                score: this.state.score + score
             })
         }
 
@@ -208,7 +243,7 @@
                                         return(
                                             <li className="question mb-5" key={i}>
                                                 <Wrapper className="question-body">
-                                                    <Question question={question} done={this.state.done} />
+                                                    <Question question={question} done={this.state.done} setScore={this.handleScore} />
                                                 </Wrapper>
                                             </li>
                                         )
@@ -220,7 +255,7 @@
                             <button className="btn btn-primary" onClick={this.handleSubmit}>Submit</button>
                         </div>
 
-                        {this.state.done && <div>Score : {this.state.score}/{this.questions.length}</div>}
+                        {this.state.done && <div>Voici votre score pour ce QCM : {this.state.score}/{this.questions.length}</div>}
                     </form>
                 </Wrapper> )
         }
