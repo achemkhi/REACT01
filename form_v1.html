@@ -42,18 +42,115 @@
         }
     }
 
-    class Input extends React.Component {
+    class Select extends React.Component{
+        constructor(props) {
+            super(props);
+        }
+
+        handleChange=(event)=>{
+            if(event.target.value === this.props.question.response){
+                this.state.score = this.state.score + 1
+            }
+        }
+
+        render() {
+            let content = <div>
+                            <h2>{this.props.question.title}</h2>
+
+                            <select className="form-control" name={this.props.question.name} onChange={this.handleChange}>
+                                {
+                                    this.props.question.choices.map((choice,index)=>{
+                                            return (<option key={index} value={index}>{choice}</option>)
+                                        }
+                                    )
+                                }
+                            </select>
+                            {this.props.done && <div className="feedback mt-2 alert-success">{this.props.question.feedback}</div>}
+                        </div>;
+            return (content);
+        }
+    }
+
+    class Radio extends React.Component {
         constructor(props) {
             super(props)
         }
 
+        handleChange=(event)=>{
+            if(event.target.value === this.props.question.response){
+                this.state.score = this.state.score + 1
+            }
+        }
+
+        render(){
+            let content = <div>
+                <h2>{this.props.question.title}</h2>
+                {
+                    this.props.question.choices.map((choice, i) => {
+                        return (
+                            <div key={i} className="form-check form-check-inline">
+                                <input name={this.props.question.name} className="form-check-input" id={this.props.question.name+i} type="radio" value={i} onChange={this.handleChange}/>
+                                <label name={this.props.question.name} className="form-check-label" htmlFor={this.props.question.name+i}>{choice}</label>
+                            </div>
+                        );
+                    })
+                }
+                {this.props.done && <div className="feedback mt-2 alert-success">{this.props.question.feedback}</div>}
+            </div>
+            return (content);
+        }
+    }
+
+    class Input extends React.Component {
+        constructor(props) {
+            super(props)
+            this.state = {
+                value: ''
+            };
+        }
+
+        handleChange = (event) => {
+            this.setState({ value: event.target.value });
+        }
+
+        render(){
+            return(<input id={this.props.id} className="form-control" value={this.state.value} name={this.props.name} type={this.props.type} onChange={this.handleChange} />)
+        }
+    }
+
+    class Question extends React.Component {
+        constructor(props) {
+            super(props)
+            this.question = this.props.question
+        }
+
         render() {
-            return(<ul>
-                Input : {this.props.question.type}
-                {this.props.question.choices.map((c,i)=> {
-                    return(<li key={i}>{c}</li>)
-                })}
-            </ul>)
+
+            let type = this.question.type;
+
+            switch (type) {
+                case 'radio':
+                    return (
+                        <div>
+                            <Radio question={this.question} done={this.props.done} />
+                        </div>
+                        )
+                    break;
+                case 'select':
+                    return (
+                        <div>
+                            <Select question={this.question} done={this.props.done} />
+                        </div>)
+                    break;
+                case 'input':
+                    return (
+                        <div>
+                            <Input question={this.question} done={this.props.done} />
+                        </div>)
+                    break;
+                default:
+                    return(<div></div>)
+            }
         }
     }
 
@@ -63,7 +160,9 @@
         }
 
         render(){
-            return(<div>{this.props.children}</div>)
+            return(<div className={"wrapper "+this.props.className}>
+                {this.props.children}
+            </div>)
         }
     }
 
@@ -71,40 +170,59 @@
         constructor(props){
             super(props)
             this.state = {
-                questions : Object.entries(questions)
+                done: false,
+                score: 0
             }
+            this.questions = Object.entries(questions)
+        }
+
+
+        handleSubmit = (event) => {
+            event.preventDefault();
+            this.setState({
+                done: true
+            })
         }
 
         render() {
             return(
-
-                <div className="container">
-                    <div>
+                <Wrapper className="container">
+                    <div className="mt-5">
                         <p>Voici un QCM sur React répondez aux questions ci-dessous, pensez à laisser votre email, champ obligatoire (*) :</p>
                     </div>
                     <form>
-                        <Wrapper>
+                        <Wrapper className="header m-5">
                             <h1>QCM React</h1>
-                            <p>votre email (*) : EMAIL</p>
+                            <div className="form-inline">
+                                <div className="form-group">
+                                    <label htmlFor="email-field">votre email (*) :</label>
+                                    <Input id={"email-field"} name={"email"} type="email" />
+                                </div>
+                            </div>
                         </Wrapper>
-                        <ol>
-                        {
-                            this.state.questions.map((q,i)=> {
-                                let question = q[1];
-                                return(<Wrapper key={i}>
-                                    <li>
-                                        <h2>{question.title}</h2>
-                                        <p>Répondez en choisissant une seule et bonne réponse ci-dessous :</p>
-                                        <Input question={question} />
-                                        <br />
-                                        <p className="feedback">{question.feedback}</p>
-                                    </li>
-                                </Wrapper>)
-                            })
-                        }
-                        </ol>
+                        <Wrapper className="questions">
+                            <ol>
+                                {
+                                    this.questions.map((q,i)=> {
+                                        let question = q[1];
+                                        return(
+                                            <li className="question mb-5" key={i}>
+                                                <Wrapper className="question-body">
+                                                    <Question question={question} done={this.state.done} />
+                                                </Wrapper>
+                                            </li>
+                                        )
+                                    })
+                                }
+                            </ol>
+                        </Wrapper>
+                        <div className="form-group">
+                            <button className="btn btn-primary" onClick={this.handleSubmit}>Submit</button>
+                        </div>
+
+                        {this.state.done && <div>Score : {this.state.score}/{this.questions.length}</div>}
                     </form>
-                </div> )
+                </Wrapper> )
         }
     }
 
