@@ -42,147 +42,6 @@
         }
     }
 
-    class Select extends React.Component{
-        constructor(props) {
-            super(props);
-            this.state = {
-                score: 0,
-                value: ''
-            }
-        }
-
-        handleChange = (event) => {
-
-            this.setState({
-                value: event.target.value,
-                score: 0
-            });
-
-            if(event.target.value == this.props.question.response){
-                this.setState({score : 1})
-            }
-
-            this.props.setScore(this.state.score);
-        }
-
-        render() {
-            let content = <div>
-                            <h2>{this.props.question.title}</h2>
-
-                            <select className="form-control" name={this.props.question.name} value={this.state.value} onChange={this.handleChange}>
-                                {
-                                    this.props.question.choices.map((choice,index)=>{
-                                            return (<option key={index} value={index}>{choice}</option>)
-                                        }
-                                    )
-                                }
-                            </select>
-                            {this.props.done && <div className="feedback mt-2 alert-success">{this.props.question.feedback}</div>}
-                        </div>;
-            return (content);
-        }
-    }
-
-    class Radio extends React.Component {
-        constructor(props) {
-            super(props);
-            this.state = {
-                score: 0,
-                value: ''
-            }
-        }
-
-        handleChange = (event) => {
-            this.setState({
-                value: event.target.value,
-                score: 0
-            });
-
-            if(event.target.value == this.props.question.response){
-                this.setState({score : 1})
-            }
-
-            this.props.setScore(this.state.score);
-        }
-
-        render(){
-            let content = <div>
-                <h2>{this.props.question.title}</h2>
-                {
-                    this.props.question.choices.map((choice, i) => {
-                        return (
-                            <div key={i} className="form-check form-check-inline">
-                                <input name={this.props.question.name} className="form-check-input" id={this.props.question.name+i} type="radio" value={i} onChange={this.handleChange}/>
-                                <label name={this.props.question.name} className="form-check-label" htmlFor={this.props.question.name+i}>{choice}</label>
-                            </div>
-                        );
-                    })
-                }
-                {this.props.done && <div className="feedback mt-2 alert-success">{this.props.question.feedback}</div>}
-            </div>
-            return (content);
-        }
-    }
-
-    class Input extends React.Component {
-        constructor(props) {
-            super(props)
-            this.state = {
-                value: ''
-            }
-        }
-
-        handleChange = (event) => {
-            this.setState({ value: event.target.value });
-        }
-
-        render(){
-            return(<input id={this.props.id} className="form-control" value={this.state.value} name={this.props.name} type={this.props.type} onChange={this.handleChange} />)
-        }
-    }
-
-    class Question extends React.Component {
-        constructor(props) {
-            super(props)
-            this.question = this.props.question
-            this.state = {
-                score: 0
-            }
-        }
-
-        handleScore = (score) => {
-            this.setState({
-                score: score
-            })
-
-            this.props.setScore(score)
-
-        }
-
-        render() {
-
-            let type = this.question.type;
-
-            switch (type) {
-                case 'radio':
-                    return (
-                        <div>
-                            <Radio question={this.question} setScore={this.handleScore} done={this.props.done} />
-                        </div>
-                        )
-                    break;
-                case 'select':
-                    return (
-                        <div>
-                            <Select question={this.question} setScore={this.handleScore} done={this.props.done} />
-                        </div>)
-                    break;
-                default:
-                    return(<div></div>)
-            }
-        }
-    }
-
     class Wrapper extends React.Component {
         constructor(props) {
             super(props)
@@ -195,28 +54,196 @@
         }
     }
 
-    class App extends React.Component {
+    class Input extends React.Component {
+        constructor(props) {
+            super(props)
+            this.question = this.props.question
+            this.state = {
+                value: ''
+            }
+        }
+
+        handleChange = (event) => {
+            this.setState({ value: event.target.value });
+        }
+
+        render(){
+            return(
+                <div className="form-group">
+                    <label htmlFor={this.props.id}>{this.props.label}</label>
+                    <input className="form-control" id={this.props.id} value={this.state.value} type={this.props.type} onChange={this.handleChange} />
+                </div>
+            )
+        }
+    }
+
+    class Select extends React.Component{
+        constructor(props) {
+            super(props);
+            this.state = {
+                value: event.target.value
+            }
+            this.score = 0;
+        }
+
+        handleChange = (event) => {
+            this.setState({
+                value: event.target.value
+            });
+
+            if(event.target.value == this.props.question.response){
+
+                this.score = 1;
+
+            }
+            else {
+                this.score = 0;
+            }
+
+            this.props.handleChange(this.score);
+        }
+
+        render() {
+            let content = <div>
+                            <h2>{this.props.question.title}</h2>
+                            <select className="form-control" name={this.props.question.name} value={this.state.value} onChange={this.handleChange}>
+                                {
+                                    this.props.question.choices.map((choice,index)=>{
+                                            return (<option key={index} value={index}>{choice}</option>)
+                                        }
+                                    )
+                                }
+                            </select>
+                            {this.props.done && <div className={this.score ? "feedback mt-2 alert-success" : "feedback mt-2 alert-danger"}>{this.props.question.feedback}</div>}
+                        </div>;
+            return (content);
+        }
+    }
+
+    class Radio extends React.Component {
+        constructor(props) {
+            super(props);
+            this.state = {
+                value: event.target.value
+            }
+            this.score = 0;
+        }
+
+        handleChange = (event) => {
+            this.setState({
+                value: event.target.value
+            })
+
+            if(event.target.value == this.props.question.response){
+                this.score = 1;
+            }
+            else {
+                this.score = 0;
+            }
+
+            this.props.handleChange(this.score);
+        }
+
+        render(){
+            let content = <div>
+                <h2>{this.props.question.title}</h2>
+                {
+                    this.props.question.choices.map((choice, i) => {
+                        return (
+                            <div key={i} className="form-check form-check-inline">
+                                <input name={this.props.question.name} className="form-check-input" id={this.props.question.name+i} type="radio" value={i} onChange={this.handleChange} />
+                                <label name={this.props.question.name} className="form-check-label" htmlFor={this.props.question.name+i}>{choice}</label>
+                            </div>
+                        );
+                    })
+                }
+                {this.props.done && <div className={this.score ? "feedback mt-2 alert-success" : "feedback mt-2 alert-danger"}>{this.props.question.feedback}</div>}
+            </div>
+            return (content);
+        }
+    }
+
+    class Question extends React.Component {
+        constructor(props) {
+            super(props)
+            this.question = this.props.question
+            this.score= 0;
+        }
+
+        handleScore = (score) => {
+
+            this.score = score;
+
+            this.props.handleScore(score,this.props.idQ)
+
+        }
+
+        render() {
+
+            let type = this.question.type;
+
+            switch (type) {
+                case 'radio':
+                    return (
+                        <div>
+                            <Radio idQ={this.props.idQ} question={this.question} handleChange={this.handleScore} done={this.props.done} />
+                        </div>
+                        )
+                    break;
+                case 'select':
+                    return (
+                        <div>
+                            <Select idQ={this.props.idQ} question={this.question} handleChange={this.handleScore} done={this.props.done} />
+                        </div>)
+                    break;
+                case 'input':
+                    return (
+                        <div>
+                            <Input idQ={this.props.idQ} question={this.question} handleChange={this.handleScore} done={this.props.done} />
+                        </div>)
+                    break;
+                default:
+                    return(<div></div>)
+            }
+
+            return (question)
+        }
+    }
+
+    class Form extends React.Component {
         constructor(props){
             super(props)
+            this.questions = Object.entries(questions)
             this.state = {
                 done: false,
                 score: 0
             }
-            this.questions = Object.entries(questions)
         }
 
         handleSubmit = (event) => {
             event.preventDefault();
-
             this.setState({
                 done: true
             })
         }
 
-        handleScore = (score) => {
+        handleScore = (score,id) => {
+
+            this.questions[id].score = score;
+
             this.setState({
-                score: this.state.score + score
+                score: this.countScore()
             })
+
+        }
+
+        countScore = () => {
+            let count = 0;
+            for(let question of this.questions){
+                if(question.score) count+= question.score;
+            }
+
+            return count;
         }
 
         render() {
@@ -225,13 +252,13 @@
                     <div className="mt-5">
                         <p>Voici un QCM sur React répondez aux questions ci-dessous, pensez à laisser votre email, champ obligatoire (*) :</p>
                     </div>
+
                     <form>
                         <Wrapper className="header m-5">
                             <h1>QCM React</h1>
                             <div className="form-inline">
                                 <div className="form-group">
-                                    <label htmlFor="email-field">votre email (*) :</label>
-                                    <Input id={"email-field"} name={"email"} type="email" />
+                                    <Input id={"email-field"} name={"email"} label={"Votre email (*)"} type="email" />
                                 </div>
                             </div>
                         </Wrapper>
@@ -241,23 +268,31 @@
                                     this.questions.map((q,i)=> {
                                         let question = q[1];
                                         return(
-                                            <li className="question mb-5" key={i}>
-                                                <Wrapper className="question-body">
-                                                    <Question question={question} done={this.state.done} setScore={this.handleScore} />
-                                                </Wrapper>
-                                            </li>
+                                        <li className="question mb-5" key={i}>
+                                            <Question idQ={i} question={question} done={this.state.done} handleScore={this.handleScore} />
+                                        </li>
                                         )
                                     })
                                 }
                             </ol>
                         </Wrapper>
                         <div className="form-group">
-                            <button className="btn btn-primary" onClick={this.handleSubmit}>Submit</button>
+                            <button className="btn btn-primary" disabled={this.state.done} onClick={this.handleSubmit}>Submit</button>
                         </div>
 
                         {this.state.done && <div>Voici votre score pour ce QCM : {this.state.score}/{this.questions.length}</div>}
                     </form>
                 </Wrapper> )
+        }
+    }
+
+    class App extends React.Component {
+        constructor(props) {
+            super(props)
+        }
+
+        render(){
+            return(<Form />)
         }
     }
 
