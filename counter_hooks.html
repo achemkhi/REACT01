@@ -36,7 +36,7 @@
             const start = () => {
                 if(active) {
                     console.log('start')
-                    timerId = setInterval(() => {
+                    timerId.current = setInterval(() => {
                         setCount(count => count + 1)
                     }, 1000)
                 }
