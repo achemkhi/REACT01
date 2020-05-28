@@ -21,7 +21,7 @@
             const [active, setActive] = React.useState(0);
             const [restart, setRestart] = React.useState(false);
 
-            let timerId = null;
+            let timerId = React.useRef(null);
 
             React.useEffect( () => console.log("mount"), [] );
 
@@ -61,7 +61,7 @@
             );
 
             const stop = () => {
-                clearInterval(timerId)
+                clearInterval(timerId.current)
                 if(restart) {
                     setCount(0)
                 }
