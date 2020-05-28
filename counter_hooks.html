@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Hello React</title>
+    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+</head>
+<body>
+    <h1>Counter useEffect & useState</h1>
+    <div id="root"></div>
+
+    <!-- compilation JSX => JS -->
+    <script type="text/babel">
+
+        const container = document.getElementById('root')
+
+        const Counter = () => {
+            const [count, setCount] = React.useState(0);
+            const [active, setActive] = React.useState(0);
+            const [restart, setRestart] = React.useState(false);
+
+            let timerId = null;
+
+            React.useEffect( () => console.log("mount"), [] );
+
+            React.useEffect( () => console.log("count updated"), [ count ] );
+
+            React.useEffect( () => console.log("any updated") );
+
+            React.useEffect( () => () => console.log("will update count or unmount"), [  count ] );
+
+            React.useEffect( () => {return () => console.log("unmount")}, [] );
+
+            const start = () => {
+                if(active) {
+                    console.log('start')
+                    timerId = setInterval(() => {
+                        setCount(count => count + 1)
+                    }, 1000)
+                }
+            }
+
+            React.useEffect(
+                () => {
+                    start()
+
+                    return () => {
+                        stop()
+                    }
+                },
+                [active]
+            );
+
+            React.useEffect(
+                () => {
+                    stop()
+                },
+                [restart]
+            );
+
+            const stop = () => {
+                clearInterval(timerId)
+                if(restart) {
+                    setCount(0)
+                }
+            }
+
+            return (
+                <div>
+                    <div>
+                        <span>{count}</span>
+                    </div>
+
+                    <button className='play' onClick={() => setActive(true)}>
+                        Start
+                    </button>
+                    <button className='stop' onClick={() => setActive(false)}>
+                        Stop
+                    </button>
+                    <button className='reset' onClick={() => {
+                        setRestart(true)
+                        setActive(false)
+                    }}>
+                        Restart
+                    </button>
+                </div>
+            );
+        };
+
+
+        const App = () => {
+            const [display, setDisplay] = React.useState(false);
+
+            return (<div>
+                <button className='display' onClick={() => setDisplay(!display)}>
+                    {display ? 'hide' : 'show'}
+                </button>
+                {display && <Counter/>}
+            </div>)
+        }
+
+        ReactDOM.render(
+            <div>
+                <App />
+            </div>
+            ,
+            container
+        );
+    </script>
+</body>
+</html>
