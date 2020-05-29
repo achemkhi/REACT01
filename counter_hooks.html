@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>Hello React</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
@@ -18,8 +19,7 @@
 
         const Counter = () => {
             const [count, setCount] = React.useState(0);
-            const [active, setActive] = React.useState(0);
-            const [restart, setRestart] = React.useState(false);
+            const [started, setStarted] = React.useState(false);
 
             let timerId = React.useRef(null);
 
@@ -34,55 +34,42 @@
             React.useEffect( () => {return () => console.log("unmount")}, [] );
 
             const start = () => {
-                if(active) {
-                    console.log('start')
-                    timerId.current = setInterval(() => {
-                        setCount(count => count + 1)
-                    }, 1000)
-                }
+                timerId.current = setInterval(() => {
+                    setCount(count => count + 1)
+                }, 1000)
+
+                setStarted(true);
             }
-
-            React.useEffect(
-                () => {
-                    start()
-
-                    return () => {
-                        stop()
-                    }
-                },
-                [active]
-            );
-
-            React.useEffect(
-                () => {
-                    stop()
-                },
-                [restart]
-            );
 
             const stop = () => {
                 clearInterval(timerId.current)
-                if(restart) {
-                    setCount(0)
-                }
+                setStarted(false);
             }
+
+            const reset = () => {
+                stop()
+                setCount(0)
+            }
+
+            React.useEffect(()=>{
+                return(()=>{
+                    console.log('unmount')
+                    stop();
+                })
+            },[])
 
             return (
                 <div>
                     <div>
                         <span>{count}</span>
                     </div>
-
-                    <button className='play' onClick={() => setActive(true)}>
+                    <button className={'btn-primary'} disabled={started ? true : false} onClick={start}>
                         Start
                     </button>
-                    <button className='stop' onClick={() => setActive(false)}>
+                    <button className={'btn'} disabled={started ? false : true} onClick={stop}>
                         Stop
                     </button>
-                    <button className='reset' onClick={() => {
-                        setRestart(true)
-                        setActive(false)
-                    }}>
+                    <button className='btn' onClick={reset}>
                         Restart
                     </button>
                 </div>
@@ -91,14 +78,8 @@
 
 
         const App = () => {
-            const [display, setDisplay] = React.useState(false);
 
-            return (<div>
-                <button className='display' onClick={() => setDisplay(!display)}>
-                    {display ? 'hide' : 'show'}
-                </button>
-                {display && <Counter/>}
-            </div>)
+            return (<div><Counter/></div>)
         }
 
         ReactDOM.render(
