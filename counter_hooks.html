@@ -69,7 +69,7 @@
                     <button className={'btn'} disabled={started ? false : true} onClick={stop}>
                         Stop
                     </button>
-                    <button className='btn' onClick={reset}>
+                    <button className='btn' disabled={started ? false : true} onClick={reset}>
                         Restart
                     </button>
                 </div>
@@ -77,9 +77,16 @@
         };
 
 
-        const App = () => {
-
-            return (<div><Counter/></div>)
+        const App = () =>{
+            const [display, setDisplay] = React.useState(false);
+            return(
+                <div>
+                    <button onClick={() => setDisplay(!display)}>
+                        {display ? 'hide' : 'show'}
+                    </button>
+                    {display && <Counter/>}
+                </div>
+            )
         }
 
         ReactDOM.render(
