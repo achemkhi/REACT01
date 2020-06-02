@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Hello React</title>
+    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- compilation JSX => JS -->
+<script type="text/babel">
+
+    const InputText = () => {
+        const inputRef = React.useRef(null);
+        return (
+            <div>
+                <input ref={inputRef} type="text" />
+            </div>
+        );
+    }
+
+    function Form(props) {
+
+        let [error, setError] = React.useState(false);
+
+        let [moyenne, setMoyenne] = React.useState(0)
+
+        let inputRef = []
+
+        for (let i = 0; i<5; i++) {
+            inputRef.push(React.useRef(null))
+        }
+
+        const handleSubmit = (e) => {
+            e.preventDefault()
+
+            let somme = 0;
+
+            inputRef.forEach((e,i) => {
+                somme = somme + Number(e.current.value)
+                console.log('elemenent'+(i+1)+' : '+ e.current.value)
+
+                if(e.current.value == '') {
+                    setError(true)
+                }
+            });
+
+            if(error) setMoyenne(somme/inputRef.length);
+
+            console.log(moyenne)
+        }
+
+        return(<form>
+            {
+                props.notes.map((el,key)=> {
+                    return(<div key={key}>
+                        <div className="form-group">
+                            <label htmlFor={'field_note'+key+1}>{el.title}: </label>
+                            <input name={'field_note'+key+1} ref={inputRef[key]} type="number" />
+                        </div>
+                    </div>)
+                })
+            }
+
+            <button type="submit" onClick={handleSubmit}>Calculer Moyenne</button>
+
+            {(error && moyenne ==0) && <div style={{color: 'red'}}>{'Merci de remplir tout les champs'}</div>}
+
+            {moyenne !=0 && <p>Moyenne : {moyenne}</p>}
+        </form>)
+    }
+
+    function App(){
+
+        const notes  = [
+                {
+                    title: 'matiere 1',
+                    coefficient: '1'
+                },
+                {
+                    title: 'matiere 2',
+                    coefficient: '1'
+                },
+                {
+                    title: 'matiere 3',
+                    coefficient: '1'
+                },
+                {
+                    title: 'matiere 4',
+                    coefficient: '1'
+                },
+                {
+                    title: 'matiere 5',
+                    coefficient: '1'
+                }
+            ]
+
+        return(
+            <div>
+                <Form notes={notes} />
+            </div>)
+    }
+
+
+    ReactDOM.render(
+        <App/>,
+        document.getElementById('root')
+    );
+
+</script>
+</body>
+</html>
